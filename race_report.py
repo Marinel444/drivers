@@ -48,7 +48,8 @@ def best_time_lap():
         for name in abbreviations:
             if start_log[0][:3] == name[:3]:
                 name = name.split('_', maxsplit=1)
-                best_drivers[str(best_time)] = name[1]
+                best_drivers[str(best_time)] = f'{name[0]}_{name[1]}'
+                print(best_drivers)
         count += 1
 
 
@@ -64,13 +65,13 @@ def build_report():
 def print_report():
     build_report()
     print_table = PrettyTable()
-    print_table.field_names = ["№", "Racer Name", "Team", "Time"]
+    print_table.field_names = ["№", "Code", "Racer Name", "Team", "Time"]
     number = 1
     for timer, name in best_drivers.items():
         name = name.split('_')
         if number == 16:
-            print_table.add_row(['-', '-', '-', '-'])
-        print_table.add_row([number, name[0], name[1], timer])
+            print_table.add_row(['-', '-', '-', '-', '-'])
+        print_table.add_row([number, name[0], name[1], name[2], timer])
         number += 1
     print(print_table)
 
