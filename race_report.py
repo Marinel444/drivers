@@ -1,6 +1,5 @@
 import datetime
 import os
-from prettytable import PrettyTable
 
 ABBREVIATIONS_FILENAME = 'abbreviations.txt'
 START_LOG = 'start.log'
@@ -10,31 +9,33 @@ DATA_DIR = os.path.join(BASE_DIR, 'DataFiles')
 best_drivers = {}
 
 
-def open_file_and_exception():
+def parse_log_file(log_file):
     try:
-        with open(os.path.join(DATA_DIR, START_LOG), encoding='utf-8') as file:
-            start_logs = file.read()
-        start_logs = start_logs.strip().split('\n')
-        start_logs.sort()
-        with open(os.path.join(DATA_DIR, END_LOG), encoding='utf-8') as file:
-            end_logs = file.read()
-        end_logs = end_logs.strip().split('\n')
-        end_logs.sort()
-        with open(os.path.join(DATA_DIR, ABBREVIATIONS_FILENAME), encoding='utf-8') as file:
-            abbreviations = file.read()
-        abbreviations = abbreviations.strip().split('\n')
+        with open(os.path.join(DATA_DIR, log_file), encoding='utf-8') as file:
+            list_file_log = file.read()
+        list_file_log = list_file_log.strip().split('\n')
+        list_file_log.sort()
+        return list_file_log
     except Exception as e:
         print(e)
-    if len(start_logs) != len(end_logs):
-        raise Exception("Неправильное количество гоншиков в логе")
-    return start_logs, end_logs, abbreviations
+
+
+def parser_abbr_file(abbr_file):
+    try:
+        with open(os.path.join(DATA_DIR, abbr_file), encoding='utf-8') as file:
+            abbreviations = file.read()
+        abbreviations = abbreviations.strip().split('\n')
+        return abbreviations
+    except Exception as e:
+        print(e)
 
 
 def best_time_lap():
-    start_logs, end_logs, abbreviations = open_file_and_exception()
-    print(start_logs[1].split('_'))
-    print(end_logs)
-    print(abbreviations)
+    start_logs = parse_log_file(START_LOG)
+    end_logs = parse_log_file(END_LOG)
+    if len(start_logs) != len(end_logs):
+        raise Exception("Неправильное количество гоншиков в логе")
+    abbreviations = parser_abbr_file(ABBREVIATIONS_FILENAME)
     count = 0
     while count <= len(start_logs) - 1:
         start_log = start_logs[count].split('_')
@@ -49,7 +50,6 @@ def best_time_lap():
             if start_log[0][:3] == name[:3]:
                 name = name.split('_', maxsplit=1)
                 best_drivers[str(best_time)] = f'{name[0]}_{name[1]}'
-                print(best_drivers)
         count += 1
 
 
@@ -62,22 +62,25 @@ def build_report():
                 best_drivers[driver] = value
 
 
-def print_report():
+def print_report(asc):
     build_report()
-    print_table = PrettyTable()
-    print_table.field_names = ["№", "Code", "Racer Name", "Team", "Time"]
     number = 1
+    print_table = []
     for timer, name in best_drivers.items():
         name = name.split('_')
         if number == 16:
-            print_table.add_row(['-', '-', '-', '-', '-'])
-        print_table.add_row([number, name[0], name[1], name[2], timer])
+            print_table.append(f'{"-" * len(print_table[1])}')
+        print_table.append(f'{number:<2}| {name[0]:<5}| {name[1]:<20}| {name[2]:<30}| {timer}')
         number += 1
-    print(print_table)
+    if asc == False:
+        print_table.reverse()
+    print(f'{"№":<2}| {"Code":<5}| {"Racer Name":<20}| {"Team":<30}| Time\n{"-" * len(print_table[1])}')
+    for i in print_table:
+        print(i)
 
 
 def main():
-    print_report()
+    print_report(asc=False)
 
 
 if __name__ == "__main__":
