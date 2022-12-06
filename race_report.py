@@ -88,13 +88,6 @@ def build_report(desc=False):
     for timer, name in racer_print.items():
         name = name.split('_')
         ready_list.append(Driver(driver_id=name[0], name=name[1], team=name[2], lap_time=timer))
-    # number = 1
-    # for timer, name in racer_print.items():
-    #     name = name.split('_')
-    #     if number == 16:
-    #         print_table.append(f'{"-" * len(print_table[1])}')
-    #     print_table.append(f'{number:<2}| {name[0]:<5}| {name[1]:<20}| {name[2]:<30}| {timer}')
-    #     number += 1
     return ready_list
 
 
