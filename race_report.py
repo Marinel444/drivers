@@ -1,12 +1,12 @@
 import datetime
 import os
+import argparse
 
 ABBREVIATIONS_FILENAME = 'abbreviations.txt'
 START_LOG = 'start.log'
 END_LOG = 'end.log'
 BASE_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(BASE_DIR, 'DataFiles')
-best_drivers = {}
 
 
 def parse_log_file(log_file):
@@ -31,11 +31,11 @@ def parser_abbr_file(abbr_file):
 
 
 def best_time_lap():
+    best_drivers = {}
     start_logs = parse_log_file(START_LOG)
     end_logs = parse_log_file(END_LOG)
     if len(start_logs) != len(end_logs):
         raise Exception("Неправильное количество гоншиков в логе")
-    abbreviations = parser_abbr_file(ABBREVIATIONS_FILENAME)
     count = 0
     while count <= len(start_logs) - 1:
         start_log = start_logs[count].split('_')
@@ -46,41 +46,56 @@ def best_time_lap():
             best_time = time_end - time_start
         else:
             best_time = time_start - time_end
-        for name in abbreviations:
-            if start_log[0][:3] == name[:3]:
-                name = name.split('_', maxsplit=1)
-                best_drivers[str(best_time)] = f'{name[0]}_{name[1]}'
+        best_drivers[str(best_time)] = start_log[0][:3]
         count += 1
+    return best_drivers
+
+
+def sorted_racer(racer_dict):
+    racer_print_sorted = {}
+    best_drivers_time = sorted(racer_dict.keys())
+    for driver in best_drivers_time:
+        for value in racer_dict.values():
+            if racer_dict[driver] == value:
+                racer_print_sorted[driver] = value
+    return racer_print_sorted
 
 
 def build_report():
-    best_time_lap()
-    best_drivers_time = sorted(best_drivers.keys())
-    for driver in best_drivers_time:
-        for value in best_drivers.values():
-            if best_drivers[driver] == value:
-                best_drivers[driver] = value
+    racer_print = {}
 
+    abbreviations = parser_abbr_file(ABBREVIATIONS_FILENAME)
+    best_drivers = best_time_lap()
 
-def print_report(asc):
-    build_report()
-    number = 1
+    for name in abbreviations:
+        for timer, driver_abbr in best_drivers.items():
+            if driver_abbr in name:
+                racer_print[timer] = name
+    racer_print = sorted_racer(racer_print)
     print_table = []
-    for timer, name in best_drivers.items():
+    number = 1
+    for timer, name in racer_print.items():
         name = name.split('_')
         if number == 16:
             print_table.append(f'{"-" * len(print_table[1])}')
         print_table.append(f'{number:<2}| {name[0]:<5}| {name[1]:<20}| {name[2]:<30}| {timer}')
         number += 1
-    if asc == False:
+    return print_table
+
+
+def print_report(desc=False):
+    print_table = build_report()
+
+    if desc == True:
         print_table.reverse()
+        
     print(f'{"№":<2}| {"Code":<5}| {"Racer Name":<20}| {"Team":<30}| Time\n{"-" * len(print_table[1])}')
     for i in print_table:
         print(i)
 
 
 def main():
-    print_report(asc=False)
+    print_report(desc=True)
 
 
 if __name__ == "__main__":
