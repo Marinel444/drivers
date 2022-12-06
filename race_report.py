@@ -2,11 +2,21 @@ import datetime
 import os
 import argparse
 
+from dataclasses import dataclass
+
 ABBREVIATIONS_FILENAME = 'abbreviations.txt'
 START_LOG = 'start.log'
 END_LOG = 'end.log'
 BASE_DIR = os.path.dirname(__file__)
 DATA_DIR = os.path.join(BASE_DIR, 'DataFiles')
+
+
+@dataclass
+class Driver:
+    driver_id: str
+    name: str
+    team: str
+    lap_time: datetime.timedelta
 
 
 def parse_log_file(log_file):
@@ -51,9 +61,11 @@ def best_time_lap():
     return best_drivers
 
 
-def sorted_racer(racer_dict):
+def sorted_racer(racer_dict, desc=False):
     racer_print_sorted = {}
     best_drivers_time = sorted(racer_dict.keys())
+    if desc != False:
+        best_drivers_time.reverse()
     for driver in best_drivers_time:
         for value in racer_dict.values():
             if racer_dict[driver] == value:
@@ -61,7 +73,7 @@ def sorted_racer(racer_dict):
     return racer_print_sorted
 
 
-def build_report():
+def build_report(desc=False):
     racer_print = {}
 
     abbreviations = parser_abbr_file(ABBREVIATIONS_FILENAME)
@@ -71,31 +83,40 @@ def build_report():
         for timer, driver_abbr in best_drivers.items():
             if driver_abbr in name:
                 racer_print[timer] = name
-    racer_print = sorted_racer(racer_print)
-    print_table = []
-    number = 1
+    racer_print = sorted_racer(racer_print, desc)
+    ready_list = []
     for timer, name in racer_print.items():
         name = name.split('_')
-        if number == 16:
-            print_table.append(f'{"-" * len(print_table[1])}')
-        print_table.append(f'{number:<2}| {name[0]:<5}| {name[1]:<20}| {name[2]:<30}| {timer}')
-        number += 1
-    return print_table
+        ready_list.append(Driver(driver_id=name[0], name=name[1], team=name[2], lap_time=timer))
+    # number = 1
+    # for timer, name in racer_print.items():
+    #     name = name.split('_')
+    #     if number == 16:
+    #         print_table.append(f'{"-" * len(print_table[1])}')
+    #     print_table.append(f'{number:<2}| {name[0]:<5}| {name[1]:<20}| {name[2]:<30}| {timer}')
+    #     number += 1
+    return ready_list
 
 
 def print_report(desc=False):
-    print_table = build_report()
-
-    if desc == True:
-        print_table.reverse()
-        
-    print(f'{"№":<2}| {"Code":<5}| {"Racer Name":<20}| {"Team":<30}| Time\n{"-" * len(print_table[1])}')
-    for i in print_table:
-        print(i)
+    ready_list = build_report(desc)
+    if desc != False:
+        count = len(ready_list)
+    else:
+        count = 1
+    print(f'{"№":<2}| {"Code":<5}| {"Racer Name":<20}| {"Team":<30}| Time\n{"-" * 79}')
+    for driver in ready_list:
+        print(f'{count:<2}| {driver.driver_id:<5}| {driver.name:<20}| {driver.team:<30}| {driver.lap_time}')
+        if count == 15:
+            print(f'{"-" * 79}')
+        if desc != False:
+            count -= 1
+        else:
+            count += 1
 
 
 def main():
-    print_report(desc=True)
+    print_report(desc=False)
 
 
 if __name__ == "__main__":
