@@ -47,9 +47,11 @@ def get_normal_time(start_time, finish_time):
     return finish_time - start_time
 
 
-def sorted_time_racer(lap_time):
+def sorted_time_racer(lap_time, desc=False):
     sorted_best_time_dict = {}
     racer_best_time = sorted(lap_time.values())
+    if desc != False:
+        racer_best_time.reverse()
     for timer in racer_best_time:
         for abbr, best_time in lap_time.items():
             if timer == best_time:
@@ -57,35 +59,23 @@ def sorted_time_racer(lap_time):
     return sorted_best_time_dict
 
 
-def get_drivers_list(lap_time, desc=False):
+def build_report(start_log, end_log, drivers_dict, desc=False):
+    lap_time = {}
     drivers_list = []
+    for start_abbr, start_time in start_log.items():
+        for end_abbr, end_time in end_log.items():
+            if start_abbr == end_abbr:
+                lap_time[start_abbr] = str(get_normal_time(start_time, end_time))
+    lap_time = sorted_time_racer(lap_time, desc)
     drivers_dict = parse_abbreviations(ABBREVIATIONS_FILENAME)
     for abbr, timer in lap_time.items():
         for key, driver_info in drivers_dict.items():
             if abbr == key:
                 drivers_list.append(Driver(driver_id=abbr, name=driver_info[0], team=driver_info[1], lap_time=timer))
-    if desc != False:
-        return drivers_list.reverse()
-    else:
-        return drivers_list
-
-
-def build_report(desc=False):
-    start_log = parse_log_file(START_LOG)
-    end_log = parse_log_file(END_LOG)
-    lap_time = {}
-    for start_abbr, start_time in start_log.items():
-        for end_abbr, end_time in end_log.items():
-            if start_abbr == end_abbr:
-                if start_time != end_time:
-                    lap_time[start_abbr] = str(get_normal_time(start_time, end_time))
-    lap_time = sorted_time_racer(lap_time)
-    drivers_list = get_drivers_list(lap_time, desc)
     return drivers_list
 
 
-def print_report(desc=False):
-    ready_list = build_report(desc)
+def print_report(ready_list, desc=False):
     if desc != False:
         count = len(ready_list)
     else:
@@ -102,9 +92,17 @@ def print_report(desc=False):
 
 
 def main():
-    print_report(desc=True)
+    parser = argparse.ArgumentParser(description='F1 Report builder')
+    parser.add_argument('--driver', help='Driver ID', required=False)
+    parser.add_argument('--desc', action='store_true', help='Sorting in descending order', required=False)
+    args = parser.parse_args()
 
+    drivers_dict = parse_abbreviations(ABBREVIATIONS_FILENAME)
+    start_times = parse_log_file(START_LOG)
+    end_times = parse_log_file(END_LOG)
+
+    drivers = build_report(start_times, end_times, drivers_dict, args.desc)
+    print_report(drivers, args.desc)
 
 if __name__ == "__main__":
     main()
-
