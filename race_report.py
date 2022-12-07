@@ -80,7 +80,7 @@ def build_report(desc=False):
                 if start_time != end_time:
                     lap_time[start_abbr] = str(get_normal_time(start_time, end_time))
     lap_time = sorted_time_racer(lap_time)
-    drivers_list = get_drivers_list(lap_time)
+    drivers_list = get_drivers_list(lap_time, desc)
     return drivers_list
 
 
