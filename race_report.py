@@ -20,75 +20,68 @@ class Driver:
 
 
 def parse_log_file(log_file):
-    try:
-        with open(os.path.join(DATA_DIR, log_file), encoding='utf-8') as file:
-            list_file_log = file.read()
-        list_file_log = list_file_log.strip().split('\n')
-        list_file_log.sort()
-        return list_file_log
-    except Exception as e:
-        print(e)
+    time_dict = {}
+    with open(os.path.join(DATA_DIR, log_file)) as file:
+        for line in file.readlines():
+            if len(line) > 1:
+                driver_id = line[:3].strip()
+                time_str = line[3:].strip().split('_')[1]
+                time_obj = datetime.datetime.strptime(time_str.strip(), '%H:%M:%S.%f')
+                time_dict[driver_id] = time_obj
+    return time_dict
 
 
-def parser_abbr_file(abbr_file):
-    try:
-        with open(os.path.join(DATA_DIR, abbr_file), encoding='utf-8') as file:
-            abbreviations = file.read()
-        abbreviations = abbreviations.strip().split('\n')
-        return abbreviations
-    except Exception as e:
-        print(e)
+def parse_abbreviations(abbr_file):
+    drivers_dict = {}
+    with open(os.path.join(DATA_DIR, abbr_file)) as file:
+        for line in file.readlines():
+            if len(line) > 1:
+                driver_id, name, team = line.strip().split('_')
+                drivers_dict[driver_id] = (name, team)
+    return drivers_dict
 
 
-def best_time_lap():
-    best_drivers = {}
-    start_logs = parse_log_file(START_LOG)
-    end_logs = parse_log_file(END_LOG)
-    if len(start_logs) != len(end_logs):
-        raise Exception("Неправильное количество гоншиков в логе")
-    count = 0
-    while count <= len(start_logs) - 1:
-        start_log = start_logs[count].split('_')
-        time_start = datetime.datetime.strptime(start_log[1].strip(), '%H:%M:%S.%f')
-        end_log = end_logs[count].split('_')
-        time_end = datetime.datetime.strptime(end_log[1].strip(), '%H:%M:%S.%f')
-        if time_end > time_start:
-            best_time = time_end - time_start
-        else:
-            best_time = time_start - time_end
-        best_drivers[str(best_time)] = start_log[0][:3]
-        count += 1
-    return best_drivers
+def get_normal_time(start_time, finish_time):
+    if start_time > finish_time:
+        start_time, finish_time = finish_time, start_time
+    return finish_time - start_time
 
 
-def sorted_racer(racer_dict, desc=False):
-    racer_print_sorted = {}
-    best_drivers_time = sorted(racer_dict.keys())
+def sorted_time_racer(lap_time):
+    sorted_best_time_dict = {}
+    racer_best_time = sorted(lap_time.values())
+    for timer in racer_best_time:
+        for abbr, best_time in lap_time.items():
+            if timer == best_time:
+                sorted_best_time_dict[abbr] = best_time
+    return sorted_best_time_dict
+
+
+def get_drivers_list(lap_time, desc=False):
+    drivers_list = []
+    drivers_dict = parse_abbreviations(ABBREVIATIONS_FILENAME)
+    for abbr, timer in lap_time.items():
+        for key, driver_info in drivers_dict.items():
+            if abbr == key:
+                drivers_list.append(Driver(driver_id=abbr, name=driver_info[0], team=driver_info[1], lap_time=timer))
     if desc != False:
-        best_drivers_time.reverse()
-    for driver in best_drivers_time:
-        for value in racer_dict.values():
-            if racer_dict[driver] == value:
-                racer_print_sorted[driver] = value
-    return racer_print_sorted
+        return drivers_list.reverse()
+    else:
+        return drivers_list
 
 
 def build_report(desc=False):
-    racer_print = {}
-
-    abbreviations = parser_abbr_file(ABBREVIATIONS_FILENAME)
-    best_drivers = best_time_lap()
-
-    for name in abbreviations:
-        for timer, driver_abbr in best_drivers.items():
-            if driver_abbr in name:
-                racer_print[timer] = name
-    racer_print = sorted_racer(racer_print, desc)
-    ready_list = []
-    for timer, name in racer_print.items():
-        name = name.split('_')
-        ready_list.append(Driver(driver_id=name[0], name=name[1], team=name[2], lap_time=timer))
-    return ready_list
+    start_log = parse_log_file(START_LOG)
+    end_log = parse_log_file(END_LOG)
+    lap_time = {}
+    for start_abbr, start_time in start_log.items():
+        for end_abbr, end_time in end_log.items():
+            if start_abbr == end_abbr:
+                if start_time != end_time:
+                    lap_time[start_abbr] = str(get_normal_time(start_time, end_time))
+    lap_time = sorted_time_racer(lap_time)
+    drivers_list = get_drivers_list(lap_time)
+    return drivers_list
 
 
 def print_report(desc=False):
@@ -109,8 +102,9 @@ def print_report(desc=False):
 
 
 def main():
-    print_report(desc=False)
+    print_report(desc=True)
 
 
 if __name__ == "__main__":
     main()
+
