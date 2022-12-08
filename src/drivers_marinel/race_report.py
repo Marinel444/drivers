@@ -8,7 +8,7 @@ ABBREVIATIONS_FILENAME = 'abbreviations.txt'
 START_LOG = 'start.log'
 END_LOG = 'end.log'
 BASE_DIR = os.path.dirname(__file__)
-DATA_DIR = os.path.join(BASE_DIR, 'DataFiles')
+DATA_DIR = os.path.join(BASE_DIR, '../../DataFiles')
 
 
 @dataclass
@@ -50,7 +50,7 @@ def get_normal_time(start_time, finish_time):
 def sorted_time_racer(lap_time, desc=False):
     sorted_best_time_dict = {}
     racer_best_time = sorted(lap_time.values())
-    if desc != False:
+    if desc:
         racer_best_time.reverse()
     for timer in racer_best_time:
         for abbr, best_time in lap_time.items():
@@ -67,7 +67,6 @@ def build_report(start_log, end_log, drivers_dict, desc=False):
             if start_abbr == end_abbr:
                 lap_time[start_abbr] = str(get_normal_time(start_time, end_time))
     lap_time = sorted_time_racer(lap_time, desc)
-    drivers_dict = parse_abbreviations(ABBREVIATIONS_FILENAME)
     for abbr, timer in lap_time.items():
         for key, driver_info in drivers_dict.items():
             if abbr == key:
@@ -76,7 +75,7 @@ def build_report(start_log, end_log, drivers_dict, desc=False):
 
 
 def print_report(ready_list, desc=False):
-    if desc != False:
+    if desc:
         count = len(ready_list)
     else:
         count = 1
@@ -85,7 +84,7 @@ def print_report(ready_list, desc=False):
         print(f'{count:<2}| {driver.driver_id:<5}| {driver.name:<20}| {driver.team:<30}| {driver.lap_time}')
         if count == 15:
             print(f'{"-" * 79}')
-        if desc != False:
+        if desc:
             count -= 1
         else:
             count += 1
@@ -103,6 +102,7 @@ def main():
 
     drivers = build_report(start_times, end_times, drivers_dict, args.desc)
     print_report(drivers, args.desc)
+
 
 if __name__ == "__main__":
     main()
