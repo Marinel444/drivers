@@ -77,7 +77,6 @@ def test_desc_input(mock_args, capsys):
 def test_drivers_input(mock_args, capsys):
     race_report.main()
     output = capsys.readouterr()
-    print(output.out.strip())
     assert output.out.strip() == """№ | Code | Racer Name          | Team                          | Time
 -------------------------------------------------------------------------------
 15| KMH  | Kevin Magnussen     | HAAS FERRARI                  | 0:01:13.393000"""
