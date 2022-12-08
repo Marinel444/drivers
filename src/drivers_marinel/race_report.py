@@ -74,20 +74,27 @@ def build_report(start_log, end_log, drivers_dict, desc=False):
     return drivers_list
 
 
-def print_report(ready_list, desc=False):
+def print_report(ready_list, desc=False, args_driver=None):
     if desc:
         count = len(ready_list)
     else:
         count = 1
-    print(f'{"№":<2}| {"Code":<5}| {"Racer Name":<20}| {"Team":<30}| Time\n{"-" * 79}')
-    for driver in ready_list:
-        print(f'{count:<2}| {driver.driver_id:<5}| {driver.name:<20}| {driver.team:<30}| {driver.lap_time}')
-        if count == 15:
-            print(f'{"-" * 79}')
-        if desc:
-            count -= 1
-        else:
+    if args_driver is not None:
+        for driver in ready_list:
+            if driver.driver_id == args_driver:
+                print(f'{"№":<2}| {"Code":<5}| {"Racer Name":<20}| {"Team":<30}| Time\n{"-" * 79}')
+                print(f'{count:<2}| {driver.driver_id:<5}| {driver.name:<20}| {driver.team:<30}| {driver.lap_time}')
             count += 1
+    else:
+        print(f'{"№":<2}| {"Code":<5}| {"Racer Name":<20}| {"Team":<30}| Time\n{"-" * 79}')
+        for driver in ready_list:
+            print(f'{count:<2}| {driver.driver_id:<5}| {driver.name:<20}| {driver.team:<30}| {driver.lap_time}')
+            if count == 15:
+                print(f'{"-" * 79}')
+            if desc:
+                count -= 1
+            else:
+                count += 1
 
 
 def main():
@@ -101,7 +108,7 @@ def main():
     end_times = parse_log_file(END_LOG)
 
     drivers = build_report(start_times, end_times, drivers_dict, args.desc)
-    print_report(drivers, args.desc)
+    print_report(drivers, args.desc, args.driver)
 
 
 if __name__ == "__main__":

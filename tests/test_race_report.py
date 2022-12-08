@@ -16,8 +16,8 @@ def test_abbr_file():
     assert e.value.args[1] == 'No such file or directory'
 
 
-@mock.patch('argparse.ArgumentParser.parse_args', return_value=argparse.Namespace(desc=True))
-def test_drivers_no_input(mock_args, capsys):
+@mock.patch('argparse.ArgumentParser.parse_args', return_value=argparse.Namespace(desc=True, driver=None))
+def test_desc_no_input(mock_args, capsys):
     race_report.main()
     output = capsys.readouterr()
     # print(output.out.strip())
@@ -45,8 +45,8 @@ def test_drivers_no_input(mock_args, capsys):
 1 | SVF  | Sebastian Vettel    | FERRARI                       | 0:01:04.415000"""
 
 
-@mock.patch('argparse.ArgumentParser.parse_args', return_value=argparse.Namespace(desc=False))
-def test_drivers_input(mock_args, capsys):
+@mock.patch('argparse.ArgumentParser.parse_args', return_value=argparse.Namespace(desc=None, driver=None))
+def test_desc_input(mock_args, capsys):
     race_report.main()
     output = capsys.readouterr()
     assert output.out.strip() == """№ | Code | Racer Name          | Team                          | Time
@@ -71,3 +71,13 @@ def test_drivers_input(mock_args, capsys):
 17| SSW  | Sergey Sirotkin     | WILLIAMS MERCEDES             | 0:04:47.294000
 18| EOF  | Esteban Ocon        | FORCE INDIA MERCEDES          | 0:05:46.972000
 19| LHM  | Lewis Hamilton      | MERCEDES                      | 0:06:47.540000"""
+
+
+@mock.patch('argparse.ArgumentParser.parse_args', return_value=argparse.Namespace(desc=None, driver='KMH'))
+def test_drivers_input(mock_args, capsys):
+    race_report.main()
+    output = capsys.readouterr()
+    print(output.out.strip())
+    assert output.out.strip() == """№ | Code | Racer Name          | Team                          | Time
+-------------------------------------------------------------------------------
+15| KMH  | Kevin Magnussen     | HAAS FERRARI                  | 0:01:13.393000"""
