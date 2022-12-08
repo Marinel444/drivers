@@ -84,6 +84,7 @@ def print_report(ready_list, desc=False, args_driver=None):
             if driver.driver_id == args_driver:
                 print(f'{"№":<2}| {"Code":<5}| {"Racer Name":<20}| {"Team":<30}| Time\n{"-" * 79}')
                 print(f'{count:<2}| {driver.driver_id:<5}| {driver.name:<20}| {driver.team:<30}| {driver.lap_time}')
+                break
             count += 1
     else:
         print(f'{"№":<2}| {"Code":<5}| {"Racer Name":<20}| {"Team":<30}| Time\n{"-" * 79}')
