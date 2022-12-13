@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+{{ super() }}
+
+<div class="card">
+    <div class="card-header">
+        Report Racer
+    </div>
+    <div class="card-body">
+        <blockquote class="blockquote mb-1">
+            <form method="post" action="{{ url_for('report_driver',desc=True)}}">
+                <input type="submit" value="Desc" name="action1"/>
+            </form>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Driver id</th>
+                    <th scope="col">Driver Name</th>
+                    <th scope="col">Team</th>
+                    <th scope="col">Time</th>
+                </tr>
+                </thead>
+                {% set number = namespace(value=0) %}
+                {% for driver in drivers %}
+                <tbody>
+                <tr>
+                    <th scope="row">{{ numbers[number.value] }}</th>
+                    <td><a href="{{ url_for('drivers',racer_id=driver.driver_id) }}">{{ driver.driver_id }}</a></td>
+                    <td>{{ driver.name }}</td>
+                    <td>{{ driver.team }}</td>
+                    <td>{{ driver.lap_time }}</td>
+                </tr>
+                </tbody>
+                {% if number.value == 15 %}
+                <tbody>
+                <tr>
+                    <th scope="row">-</th>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                    <td>-</td>
+                </tr>
+                </tbody>
+                {% endif %}
+                {% set number.value = number.value + 1 %}
+                {% endfor %}
+            </table>
+        </blockquote>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block content %}
+{{ super() }}
+<div class="card" style="width: 18rem;">
+  <img src="https://s-cdn.sportbox.ru/images/styles/960_auto/fp_fotos/cf/ea/b4499a2eff4e2fcf2587618e12e8b9e56309fc38b98f9750049899.jpg" class="card-img-top" alt="...">
+  <div class="card-body">
+    <h5 class="card-title">{{ racer.name }}</h5>
+  </div>
+  <ul class="list-group list-group-flush">
+    <li class="list-group-item">ID: {{ racer.driver_id }}</li>
+    <li class="list-group-item">Team: {{ racer.team }}</li>
+  </ul>
+</div>
+
+{% endblock %}

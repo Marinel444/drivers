@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block content %}
+{{ super() }}
+{% for m in menu %}
+<p>{{ m }}</p>
+{% endfor %}
+{% endblock %}
