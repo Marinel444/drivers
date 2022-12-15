@@ -8,9 +8,7 @@
     </div>
     <div class="card-body">
         <blockquote class="blockquote mb-1">
-            <form method="post" action="{{ url_for('report_driver',desc=True)}}">
-                <input type="submit" value="Desc" name="action1"/>
-            </form>
+            <a class="btn btn-primary" href="{{ url_for('report_driver',order='desc')}}" role="button">Desc</a>
             <table class="table table-striped">
                 <thead>
                 <tr>
@@ -32,7 +30,7 @@
                     <td>{{ driver.lap_time }}</td>
                 </tr>
                 </tbody>
-                {% if number.value == 15 %}
+                {% if numbers[number.value] == 16 %}
                 <tbody>
                 <tr>
                     <th scope="row">-</th>
