@@ -96,7 +96,7 @@ def print_report(ready_list, desc=False, args_driver=None):
                 count -= 1
             else:
                 count += 1
-
+                
 
 def main():
     parser = argparse.ArgumentParser(description='F1 Report builder')
