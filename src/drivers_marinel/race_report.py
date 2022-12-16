@@ -96,7 +96,7 @@ def print_report(ready_list, desc=False, args_driver=None):
                 count -= 1
             else:
                 count += 1
-                
+
 
 def main():
     parser = argparse.ArgumentParser(description='F1 Report builder')
@@ -109,8 +109,7 @@ def main():
     end_times = parse_log_file(END_LOG)
 
     drivers = build_report(start_times, end_times, drivers_dict, args.desc)
-    # print_report(drivers, args.desc, args.driver)
-    return drivers
+    print_report(drivers, args.desc, args.driver)
 
 
 if __name__ == "__main__":
